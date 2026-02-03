@@ -8,6 +8,7 @@ export default function FormInput({
   placeholder,
   error,
   layout = "stacked",
+  ...props
 }) {
   const [showError, setShowError] = useState(!!error);
 
@@ -26,6 +27,7 @@ export default function FormInput({
 
       <div className="mt-2">
         <input
+          {...props}
           id={id}
           type={type}
           name={name}
@@ -47,10 +49,11 @@ export default function FormInput({
         htmlFor={id}
         className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5"
       >
-        Name
+        {label}
       </label>
       <div className="mt-2 sm:col-span-2 sm:mt-0">
         <input
+         {...props}
           id={id}
           type={type}
           name={name}

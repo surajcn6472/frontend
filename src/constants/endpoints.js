@@ -21,7 +21,7 @@ export const PROJECTS = "/projects";
 
 // ========================= MASTER DATA API
 export const SKILLS = "/skills";
-export const DEPARTMENT = "/departments";
+export const DEPARTMENTS = "/departments";
 
 // ========================= SYSTEM / TEST
 export const SETUP_TEST = "/";

@@ -2,7 +2,7 @@ function FormCheckbox({
   children,
   id,
   label,
-  className = `col-start-1 row-start-1 appearance-none rounded border border-gray-300 bg-white
+  inputClassName = `col-start-1 row-start-1 appearance-none rounded border border-gray-300 bg-white
                        checked:border-indigo-600 checked:bg-indigo-600
                        indeterminate:border-indigo-600 indeterminate:bg-indigo-600
                        focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600
@@ -14,7 +14,7 @@ function FormCheckbox({
     <div className="flex gap-3">
       <div className="flex h-6 shrink-0 items-center">
         <div className="group grid size-4 grid-cols-1">
-          <input id={id} type="checkbox" className={className} {...props} />
+          <input id={id} type="checkbox" className={inputClassName} {...props} />
           <svg
             viewBox="0 0 14 14"
             fill="none"

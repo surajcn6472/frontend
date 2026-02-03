@@ -1,48 +1,32 @@
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl =
+  import.meta.env.VITE_API_BASE_URL + import.meta.env.VITE_API_VERSION;
 
 export async function apiRequest({ url, method = "GET", data, headers = {} }) {
   try {
+    const token = localStorage.getItem("token");
+    const isFormData = data instanceof FormData;
+
     const response = await fetch(apiUrl + url, {
       method,
       headers: {
-        "Content-Type": "application/json",
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...headers,
       },
-      body: data ? JSON.stringify(data) : undefined,
+      body: data ? (isFormData ? data : JSON.stringify(data)) : undefined,
     });
 
-    let result = null;
-    try {
-      result = await response.json();
-    } catch {}
+    const result = await response.json();
 
-    const customResponse = {
-      statusCode: response.status,
-    };
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-      }
-
-      customResponse.msg = result?.msg || "Request failed";
-
-      if (response.status === 422) {
-        customResponse.errors = result?.errors || {};
-      }
-
-      return customResponse;
-    } else {
-      customResponse.data = result.data;
-    }
-
-    return customResponse;
-  } catch (error) {
     return {
-      success: false,
+      statusCode: response.status,
+      data: result?.data,
+      msg: result?.msg,
+    };
+  } catch {
+    return {
       statusCode: 0,
-      msg: "Network error. Please try again.",
+      msg: "Network error",
     };
   }
 }
