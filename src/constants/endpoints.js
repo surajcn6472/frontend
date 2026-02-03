@@ -1,31 +1,27 @@
-/* =========================
-   AUTH
-========================= */
+// ========================= AUTH
 export const AUTH_LOGIN = "/auth/login";
 export const AUTH_REGISTER = "/auth/register";
 
-/* =========================
-   USER
-========================= */
+// ========================= USER
 export const USER_PROFILE = "/user/profile";
 
-/* =========================
-   USER PROJECTS
-========================= */
+// ========================= USER PROJECTS
 export const USER_PROJECTS = "/user/projects";
 
 export const USER_PROJECT_DETAIL = (projectId) => `/user/projects/${projectId}`;
 
-export const USER_PROJECT_UPDATE = (projectId) => `/user/projects/${projectId}/update`;
+export const USER_PROJECT_UPDATE = (projectId) =>
+  `/user/projects/${projectId}/update`;
 
-export const USER_PROJECT_DELETE = (projectId) => `/user/projects/${projectId}/delete`;
+export const USER_PROJECT_DELETE = (projectId) =>
+  `/user/projects/${projectId}/delete`;
 
-/* =========================
-   PUBLIC PROJECTS
-========================= */
+// ========================= PUBLIC PROJECTS
 export const PROJECTS = "/projects";
 
-/* =========================
-   SYSTEM / TEST
-========================= */
+// ========================= MASTER DATA API
+export const SKILLS = "/skills";
+export const DEPARTMENT = "/departments";
+
+// ========================= SYSTEM / TEST
 export const SETUP_TEST = "/";
