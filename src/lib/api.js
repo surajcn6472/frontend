@@ -42,8 +42,9 @@ export const projectsAPI = {
   },
 
   // Delete project
-  delete: async (id) => {
-    return apiRequest(`/projects/${id}`, {
+  delete: async (endpoint) => {
+    return apiRequest({
+      url: endpoint,
       method: "DELETE",
     });
   },

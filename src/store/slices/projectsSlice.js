@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { PROJECTS } from "../../constants/endpoints";
+import { PROJECTS, USER_PROJECT_DELETE } from "../../constants/endpoints";
 import { projectsAPI } from "../../lib/api";
 
 export const fetchProjects = createAsyncThunk(
@@ -62,18 +62,16 @@ export const updateProject = createAsyncThunk(
     }
   },
 );
-
 export const deleteProject = createAsyncThunk(
   "projects/deleteProject",
-  async (id, { rejectWithValue }) => {
+  async ({ id, params }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await fetch(`${PROJECTS}/${id}`, {
-        method: "DELETE",
-      });
+      const response = await projectsAPI.delete(USER_PROJECT_DELETE(id));
 
-      if (!response.ok) {
-        throw new Error("Failed to delete project");
+      if (response.statusCode !== 200) {
+        throw new Error("Delete failed");
       }
+      dispatch(fetchProjects(params));
 
       return id;
     } catch (error) {

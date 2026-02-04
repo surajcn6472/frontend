@@ -1,17 +1,24 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Pagination from "../components/Pagination";
-import { fetchProjects } from "../store/slices/projectsSlice";
+import { deleteProject, fetchProjects } from "../store/slices/projectsSlice";
+import Modal from "../components/Modal";
+import { createPortal } from "react-dom";
 
 export default function Project() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
-  const location = useLocation();
+  const [deletingProjectId, setDeletingProjectId] = useState(null);
 
   const { projects, loading, error, pagination } = useSelector(
     (state) => state.projects,
   );
+
+  const deleteActionHandler = (value) => {
+    handleDelete(value);
+    setDeletingProjectId(null);
+  };
 
   // Local state for form inputs
   const [filters, setFilters] = useState({
@@ -36,26 +43,41 @@ export default function Project() {
     dispatch(fetchProjects(params));
   }, [dispatch, currentPage, filters]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+    params.set("page", "1");
+    setSearchParams(params);
+  }, [filters]);
+
   // Handle filter changes
   const handleFilterChange = (e, reset = false) => {
     if (reset) {
-      setSearchParams({});
       setFilters({
         search: "",
         status: "",
         sortBy: "",
         order: "",
       });
+      setSearchParams({});
       return;
     }
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.set(key, value);
-    });
-    params.set("page", "1"); // Reset to first page on filter change
 
+    const { name, value } = e.target;
+
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    const params = new URLSearchParams(searchParams);
     setSearchParams(params);
   };
 
@@ -67,11 +89,13 @@ export default function Project() {
   };
 
   // Handle delete
-  const handleDelete = async (projectId) => {
-    if (window.confirm("Are you sure you want to delete this project?")) {
-      // Dispatch delete action
-      dispatch(deleteProject(projectId));
-    }
+  const handleDelete = (projectId) => {
+    dispatch(
+      deleteProject({
+        id: projectId,
+        params: Object.fromEntries(searchParams.entries()),
+      }),
+    );
   };
 
   if (error) {
@@ -232,7 +256,7 @@ export default function Project() {
                           <div className="-mt-px flex divide-x divide-gray-200">
                             <div className="flex w-0 flex-1">
                               <button
-                                onClick={() => handleDelete(project.id)}
+                                onClick={() => setDeletingProjectId(project.id)}
                                 className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-red-600 hover:bg-gray-50"
                               >
                                 Delete
@@ -257,6 +281,15 @@ export default function Project() {
                   </div>
                 )}
 
+                {!!deletingProjectId &&
+                  createPortal(
+                    <Modal
+                      open={!!open}
+                      onClose={() => setOpen(false)}
+                      onAction={() => deleteActionHandler(deletingProjectId)}
+                    />,
+                    document.getElementById("modal"),
+                  )}
                 <Pagination
                   page={pagination.page}
                   totalPages={pagination.totalPages}
