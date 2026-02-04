@@ -16,17 +16,37 @@ export async function apiRequest({ url, method = "GET", data, headers = {} }) {
       body: data ? (isFormData ? data : JSON.stringify(data)) : undefined,
     });
 
-    const result = await response.json();
+    let result = null;
+    try {
+      result = await response.json();
+    } catch {}
 
-    return {
+    const customResponse = {
       statusCode: response.status,
-      data: result?.data,
-      msg: result?.msg,
     };
-  } catch {
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+
+      customResponse.msg = result?.msg || "Request failed";
+
+      if (response.status === 422) {
+        customResponse.errors = result?.errors || {};
+      }
+
+      return customResponse;
+    } else {
+      customResponse.data = result.data;
+    }
+
+    return customResponse;
+  } catch (error) {
     return {
       statusCode: 0,
-      msg: "Network error",
+      msg: "Network error. Please try again.",
     };
   }
 }
