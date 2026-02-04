@@ -78,7 +78,7 @@ export default function ProfileEdit() {
                 </label>
                 <div className="mt-2 sm:col-span-2 sm:mt-0">
                   <div className="grid grid-cols-1 sm:max-w-xs">
-                    {loaderData.profile.department.name}
+                    {loaderData.profile.department?.name}
                   </div>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export default function ProfileEdit() {
                   <div className="mt-1 sm:col-span-2 sm:mt-0">
                     <div className="max-w-lg">
                       <div className="mt-6 space-x-6 flex">
-                        {loaderData.profile.gender.toUpperCase()}
+                        {loaderData.profile.gender?.toUpperCase()}
                       </div>
                     </div>
                   </div>

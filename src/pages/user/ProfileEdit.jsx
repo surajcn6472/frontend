@@ -130,7 +130,7 @@ export default function ProfileEdit() {
                 <div className="mt-2 sm:col-span-2 sm:mt-0">
                   <div className="grid grid-cols-1 sm:max-w-xs">
                     <select
-                      defaultValue={loaderData.profile.department.id}
+                      defaultValue={loaderData.profile.department?.id}
                       id="department_id"
                       name="department_id"
                       autoComplete="department_id"

@@ -72,7 +72,9 @@ export default function Login() {
               </button>
             </div>
 
-            {actionData?.error && <p>{actionData.error}</p>}
+            {!(actionData?.errors?.password || actionData?.errors?.email) && actionData?.msg && (
+              <p className="text-center text-red-500">{actionData.msg}</p>
+            )}
           </Form>
 
           <div>
@@ -138,7 +140,7 @@ export async function action({ request }) {
   }
 
   return {
-    error: result.payload?.message || "Invalid credentials",
-    errors: result.payload?.errors
+    msg: result.payload?.msg,
+    errors: result.payload?.errors,
   };
 }
