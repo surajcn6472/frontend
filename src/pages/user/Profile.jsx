@@ -177,7 +177,6 @@ export async function loader() {
   });
 
   if (result.statusCode == 200) {
-    console.log(result.data);
     return result.data;
   }
 }

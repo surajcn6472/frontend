@@ -4,7 +4,6 @@ import { USER_PROJECTS } from "../../../constants/endpoints";
 
 export default function Create() {
   const actionData = useActionData();
-  console.log(actionData);
   return (
     <div className="flex min-h-full flex-col justify-center py-10 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">

@@ -20,7 +20,6 @@ export async function apiRequest({ url, method = "GET", data, headers = {} }) {
     try {
       result = await response.json();
     } catch {}
-
     const customResponse = {
       statusCode: response.status,
     };
@@ -40,8 +39,10 @@ export async function apiRequest({ url, method = "GET", data, headers = {} }) {
       return customResponse;
     } else {
       customResponse.data = result.data;
+      if(result.meta) {
+        customResponse.meta = result.meta;
+      }
     }
-
     return customResponse;
   } catch (error) {
     return {
