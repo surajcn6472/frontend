@@ -17,7 +17,7 @@ export const loginUser = createAsyncThunk(
         method: "POST",
         data: payload
       });
-      return res.data;
+      return res.statusCode === 200 ? res.data : rejectWithValue(res);
     } catch (err) {
       return rejectWithValue(err.response?.data);
     }
@@ -45,6 +45,7 @@ const authSlice = createSlice({
         state.status = "loading";
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        console.log("Login successful:", action.payload);
         state.status = "succeeded";
         state.user = action.payload.user;
         state.token = action.payload.token;
