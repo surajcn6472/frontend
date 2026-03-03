@@ -3,19 +3,20 @@ import { Header } from "../ui/Header";
 import { Outlet, Navigate, useLocation } from "react-router";
 import { useSelector } from "react-redux";
 
-const PUBLIC_ROUTES = ["/login", "/signup", "/forgot-password"];
+const GUEST_ROUTES = ["/login", "/signup", "/forgot-password"];
+const PUBLIC_ROUTES = ["/projects"];
 
 export default function RootLayout() {
   const { token } = useSelector((state) => state.auth);
   const location = useLocation();
-
+  const isGuestRoute = GUEST_ROUTES.includes(location.pathname);
   const isPublicRoute = PUBLIC_ROUTES.includes(location.pathname);
 
-  if (!token && !isPublicRoute) {
+  if (!token && !isGuestRoute && !isPublicRoute) {
     return <Navigate to="/login" replace />;
   }
 
-  if (token && isPublicRoute) {
+  if (token && isGuestRoute) {
     return <Navigate to="/user/projects" replace />;
   }
 

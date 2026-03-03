@@ -102,6 +102,7 @@ const projectsSlice = createSlice({
   initialState,
   reducers: {
     clearError: (state) => {
+      console.log("Clearing error");
       state.error = null;
     },
     setCurrentProject: (state, action) => {

@@ -64,7 +64,7 @@ export default function ProfileEdit() {
                 </label>
                 <div className="mt-2 sm:col-span-2 sm:mt-0">
                   <div className="mt-2 sm:col-span-2 sm:mt-0">
-                    {loaderData.profile.bio}
+                    {loaderData.profile.bio || "Not provided"}
                   </div>
                 </div>
               </div>
@@ -78,7 +78,7 @@ export default function ProfileEdit() {
                 </label>
                 <div className="mt-2 sm:col-span-2 sm:mt-0">
                   <div className="grid grid-cols-1 sm:max-w-xs">
-                    {loaderData.profile.department?.name}
+                    {loaderData.profile.department?.name || "Not provided"}
                   </div>
                 </div>
               </div>
@@ -92,14 +92,18 @@ export default function ProfileEdit() {
                 </label>
                 <div className="mt-2 sm:col-span-2 sm:mt-0">
                   <div className="flex items-center gap-x-3">
-                    <img
-                      src={
-                        import.meta.env.VITE_API_BASE_URL +
-                        loaderData.profile.image
-                      }
-                      alt=""
-                      className="h-20 w-auto rounded object-cover"
-                    />
+                    {loaderData.profile.image ? (
+                      <img
+                        src={
+                          import.meta.env.VITE_API_BASE_URL +
+                          loaderData.profile.image
+                        }
+                        alt=""
+                        className="h-20 w-auto rounded object-cover"
+                      />
+                    ) : (
+                      "Not provided"
+                    )}
                   </div>
                 </div>
               </div>
@@ -115,11 +119,13 @@ export default function ProfileEdit() {
                   </div>
                   <div className="mt-4 sm:col-span-2 sm:mt-0">
                     <div className="max-w-lg flex gap-3 flex-wrap">
-                      {loaderData.profile.skills.map((skill) => (
-                        <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 inset-ring inset-ring-green-600/20">
-                          {skill.name}
-                        </span>
-                      ))}
+                      {loaderData.profile.skills.length
+                        ? loaderData.profile.skills.map((skill) => (
+                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 inset-ring inset-ring-green-600/20">
+                              {skill.name}
+                            </span>
+                          ))
+                        : "Not provided"}
                     </div>
                   </div>
                 </div>
@@ -137,7 +143,8 @@ export default function ProfileEdit() {
                   <div className="mt-1 sm:col-span-2 sm:mt-0">
                     <div className="max-w-lg">
                       <div className="mt-6 space-x-6 flex">
-                        {loaderData.profile.gender?.toUpperCase()}
+                        {loaderData.profile.gender?.toUpperCase() ||
+                          "Not provided"}
                       </div>
                     </div>
                   </div>

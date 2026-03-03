@@ -1,15 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
 import Pagination from "../../../components/Pagination";
-import { deleteProject, fetchUserProjects } from "../../../store/slices/userProjectsSlice";
+import { deleteProject, fetchUserProjects, clearError } from "../../../store/slices/userProjectsSlice";
 import Modal from "../../../components/Modal";
-import { createPortal } from "react-dom";
+import debounce from "lodash.debounce";
 
 export default function Project() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const [deletingProjectId, setDeletingProjectId] = useState(null);
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") || "",
+  );
 
   const { projects, loading, error, pagination } = useSelector(
     (state) => state.userProjects,
@@ -20,7 +23,6 @@ export default function Project() {
     setDeletingProjectId(null);
   };
 
-  // Local state for form inputs
   const [filters, setFilters] = useState({
     search: searchParams.get("search") || "",
     status: searchParams.get("status") || "",
@@ -30,7 +32,6 @@ export default function Project() {
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
-  // Fetch projects when filters or page changes
   useEffect(() => {
     const params = {
       page: currentPage,
@@ -39,7 +40,6 @@ export default function Project() {
       ),
     };
 
-    // Dispatch your Redux action here
     dispatch(fetchUserProjects(params));
   }, [dispatch, currentPage, filters]);
 
@@ -57,9 +57,9 @@ export default function Project() {
     setSearchParams(params);
   }, [filters]);
 
-  // Handle filter changes
   const handleFilterChange = (e, reset = false) => {
     if (reset) {
+      setSearchInput("");
       setFilters({
         search: "",
         status: "",
@@ -81,14 +81,20 @@ export default function Project() {
     setSearchParams(params);
   };
 
-  // Handle page change
+  const handleSearchChange = useMemo(
+    () =>
+      debounce((value) => {
+        setFilters((prev) => ({ ...prev, search: value }));
+      }, 500),
+    [],
+  );
+
   const handlePageChange = (page) => {
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
     setSearchParams(params);
   };
 
-  // Handle delete
   const handleDelete = (projectId) => {
     dispatch(
       deleteProject({
@@ -98,21 +104,12 @@ export default function Project() {
     );
   };
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-red-600">Error: {error}</div>
-      </div>
-    );
-  }
-
   return (
     <div className="mx-auto max-w-7xl">
       <div className="px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
-            <h1 className="text-base font-semibold text-gray-900">My Projects</h1>
+            <h1 className="text-base font-semibold text-gray-900">Projects</h1>
             <p className="mt-2 text-sm text-gray-700">
               A list of all the projects their name, start date, end date, rate,
               status and owner profile pics.
@@ -127,13 +124,15 @@ export default function Project() {
             </Link>
           </div>
         </div>
-        {/* Filters */}
         <form className="flex gap-3 mt-5">
           <input
             type="text"
             name="search"
-            value={filters.search}
-            onChange={handleFilterChange}
+            value={searchInput}
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+              handleSearchChange(e.target.value);
+            }}
             placeholder="Search for the tool you like"
             className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
@@ -184,7 +183,6 @@ export default function Project() {
             Reset
           </button>
         </form>
-        {/* Projects Grid */}
         {loading ? (
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-lg">Loading projects...</div>
@@ -194,6 +192,7 @@ export default function Project() {
             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
               <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                 {projects && projects.length > 0 ? (
+                  <>
                   <ul
                     role="list"
                     className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
@@ -252,7 +251,6 @@ export default function Project() {
                             />
                           )}
                         </div>
-                        <div>
                           <div className="-mt-px flex divide-x divide-gray-200">
                             <div className="flex w-0 flex-1">
                               <button
@@ -271,36 +269,44 @@ export default function Project() {
                               </Link>
                             </div>
                           </div>
-                        </div>
                       </li>
                     ))}
                   </ul>
+                  <Pagination
+                    page={pagination.page}
+                    totalPages={pagination.totalPages}
+                    hasNextPage={pagination.hasNextPage}
+                    hasPrevPage={pagination.hasPrevPage}
+                    onPageChange={handlePageChange}
+                    className="mt-5"
+                  />
+                </>
                 ) : (
                   <div className="text-center py-12">
                     <p className="text-gray-500">No projects found</p>
                   </div>
                 )}
 
-                {!!deletingProjectId &&
-                  createPortal(
-                    <Modal
-                      open={!!open}
-                      onClose={() => setOpen(false)}
-                      onAction={() => deleteActionHandler(deletingProjectId)}
-                    />,
-                    document.getElementById("modal"),
-                  )}
-                <Pagination
-                  page={pagination.page}
-                  totalPages={pagination.totalPages}
-                  hasNextPage={pagination.hasNextPage}
-                  hasPrevPage={pagination.hasPrevPage}
-                  onPageChange={handlePageChange}
-                  className="mt-5"
-                />
+                {!!deletingProjectId && (
+                  <Modal
+                    onClose={() => setDeletingProjectId(null)}
+                    onAction={() => deleteActionHandler(deletingProjectId)}
+                    modalDescription="Are you sure you want to delete this project? This action cannot be undone."
+                    modalTitle="Delete project"
+                    actionText="Delete"
+                  />
+                )}
               </div>
             </div>
           </div>
+        )}
+        {error && (
+          <Modal
+            onClose={() => dispatch(clearError())}
+            onAction={() => deleteActionHandler(deletingProjectId)}
+            modalDescription={error}
+            modalTitle="Error"
+          />
         )}
       </div>
     </div>

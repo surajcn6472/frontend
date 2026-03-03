@@ -27,7 +27,7 @@ export const loginUser = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: null,
+    user: JSON.parse(localStorage.getItem("user")) || null,
     token: localStorage.getItem("token"),
     status: "idle",
     error: null
@@ -37,6 +37,7 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
     }
   },
   extraReducers: (builder) => {
@@ -45,10 +46,12 @@ const authSlice = createSlice({
         state.status = "loading";
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        const { token, ...user } = action.payload;
         state.status = "succeeded";
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        localStorage.setItem("token", action.payload.token);
+        state.user = user;
+        state.token = token;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";
